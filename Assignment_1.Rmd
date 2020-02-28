@@ -1,0 +1,138 @@
+---
+title: "Assignment_1"
+author: "Group 7"
+date: "2/28/2020"
+output: html_document
+---
+
+* Questions:
+
+1-	the optimal price for selling the car seats at those stores where the shelve location is good (i.e. the product is highly visible)?
+2-	the optimal price for selling the car seats at those stores where the shelve location is bad (i.e. the product is highly visible)?
+Cost of producing each car seat is $55.0 
+1-	Plot the optimal price for selling the car seats at those stores where the shelve location is good and those where the shelve location is bad when varying the production costs from $40 to $85.
+
+* Solution:
+
+```{r}
+
+library(ISLR)
+library(dplyr)
+library(gridExtra)
+library(ggplot2)
+SafeBabies <- Carseats %>% select("Sales", "Price", "ShelveLoc")
+
+````
+
+* Flitering the data:
+
+```{r}
+
+Good <- filter(SafeBabies,ShelveLoc == 'Good')
+Med <- filter(SafeBabies,ShelveLoc == 'Medium')
+Bad <- filter(SafeBabies,ShelveLoc == 'Bad')
+
+```
+
+* Regression Model for Sales w.r.t price for car seats where the shelve location :
+
+```{r}
+
+Shelf_Good<-Good[order(Good$Price),]
+head(Shelf_Good)
+Model_Good <- lm(Shelf_Good$Sales ~ Shelf_Good$Price, data = Shelf_Good)
+summary(Model_Good)
+
+```
+
+* the equation for optimal price for car seats where shelve location is good:
+
+```{r}
+
+Good_optimal_price = (-0.065785 *55 - 17.968864)/(2 * -0.065785)
+Good_optimal_price
+
+```
+
+* optimal price for change in production cost from 40$ to 85$:
+
+```{r}
+
+result_Good <- vector("numeric", 40)
+for(cost in 40:86) {
+     Good_Optimised_results <- (-0.065785 *cost - 17.968864)/(2 * -0.065785)
+   result_Good[cost - 40] <- Good_Optimised_results
+}
+head(result_Good)
+
+```
+
+* Comparison of optimized price and change in cost:
+
+```{r}
+
+price<- c(40:85)
+Good_Optimised_price<-cbind.data.frame(result_Good,price)
+names(Good_Optimised_price)<-c('Optimized Price','Change in Cost')
+
+```
+
+* Regression Model for Sales w.r.t price for car seats where the shelve location bad:
+
+```{r}
+
+Shelf_Bad<-Bad[order(Bad$Price),]
+head(Shelf_Bad)
+Model_Bad <- lm(Shelf_Bad$Sales ~ Shelf_Bad$Price, data = Shelf_Bad)
+summary(Model_Bad)
+
+```
+
+* the equation for optimal price for car seats where shelve location is bad:
+
+```{r}
+
+Bad_optimal_price = (-0.05522 * 55 - 11.832984) / (2 * -0.05522)
+Bad_optimal_price
+
+```
+
+* optimal price for change in production cost from 40$ to 85$:
+
+```{r}
+
+result_Bad <- vector("numeric", 40)
+for(cost in 40:86) {
+     Bad_optimal_price <- (-0.05522 *cost - 11.832984)/(2 * -0.05522)
+   result_Bad[cost - 40] <- Bad_optimal_price
+}
+head(result_Bad)
+
+```
+
+*Comparison of optimized price and change in cost:
+
+```{r}
+
+price<- c(40:85)
+Bad_Optimised_price<-cbind.data.frame(result_Bad,price)
+names(Bad_Optimised_price)<-c('Optimized Price','Change in Cost')
+
+```
+
+* Plotting the optimal price for selling the car seats at those stores where the shelve location is good and bad:
+
+```{r}
+
+a<-ggplot(Good_Optimised_price, aes(Good_Optimised_price$`Optimized Price`, Good_Optimised_price$`Change in Cost`, colour='Good location')  ) + labs(title = 'Optimized Price VS Cost Price',x='Optimized price',y='Cost Price') + geom_line() +  scale_color_manual("", values = ("Good Price'" = "blue")) +geom_point(colour='black')
+
+```
+
+```{r}
+
+b<-ggplot(Bad_Optimised_price, aes(Bad_Optimised_price$`Optimized Price`, Bad_Optimised_price$`Change in Cost`, colour='bad location ')  ) + labs(x='Optimized price',y='Cost Price') + geom_line() +  scale_color_manual("", values = ("bad Price'" = "red")) +geom_point(colour="black")
+grid.arrange(a, b, ncol=1)
+
+```
+
+As interpreted from above graph, when production cost is 55 and shelve location is good the optimized price is 109.07 ; whereas when the shelve location is bad the optimized price is 79.64. 
