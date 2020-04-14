@@ -1,0 +1,89 @@
+---
+title: "Assignment_2"
+author: "Group 7"
+date: "4/14/2020"
+output: html_document
+---
+Problem Statement :
+
+To build a random forest classification model to predict the type of a breast tumor (benign or malignant). 
+The data can be loaded using the mlbench library using- 
+ library(mlbench)
+ data(BreastCancer) 
+A data frame with 699 observations on 11 variables, one being a character variable, 9 being ordered or nominal, and 1 target class.
+
+a)	 Try examine the following values for the mtry variable 2 6 8.
+
+b)	Show the confusion matrix of predictions on the test data (in the above example, I have the raw (class) predictions. You need to compare them with the ground truth values (i.e. testing$Class). Hint: table( ) function.
+
+
+Solution :
+
+Loading libraries and Data & checking the levels of the prediction :
+
+```{r}
+
+library(mlbench)
+library(caret)
+library(randomForest)
+data(BreastCancer) 
+
+levels(BreastCancer$Class)
+
+```
+
+Converting the character to numeric for ID and factoring Class. Removing NA's from the data : 
+
+```{r}
+
+BreastCancer$Id <- as.numeric(BreastCancer$Id) 
+BreastCancer$Class <- as.factor(BreastCancer$Class)
+
+BreastCancer <- na.roughfix(BreastCancer)
+
+```
+
+Dividing the data as training and testing :
+
+```{r}
+
+set.seed(2)
+intrain <- createDataPartition(y = BreastCancer$Class, p = 0.7, list = FALSE)
+training <-BreastCancer[intrain,]
+testing <- BreastCancer[-intrain,]
+
+```
+
+Using Rain Forest method to train the model :
+
+```{r}
+
+rf.model<-train(Class~.,data=training,method='rf')
+rf.model
+
+```
+
+Grid searching the training model with mtry variables- 2,6,8 :
+
+```{r}
+
+Grid_Serach <- expand.grid(.mtry=c(2,6,8))
+
+rf.model2<-train(Class~., data=training, method='rf', tuneGrid=Grid_Serach)
+rf.model2
+
+```
+
+The confusion matrix of predictions on the test data. And comparing the predictions with the ground truth values :
+
+```{r}
+
+probs <-predict(rf.model2,testing,type="prob")
+head(probs)
+
+pred_class <-predict(rf.model2,testing,type="raw")
+head(pred_class)
+
+table(pred_class, testing$Class)
+
+```
