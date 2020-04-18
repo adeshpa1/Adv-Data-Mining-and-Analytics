@@ -1,0 +1,50 @@
+---
+title: "Assignment_3"
+author: "Group 7"
+date: "4/18/2020"
+output: html_document
+---
+
+Below are the libraries used.
+```{r}
+
+library(dplyr)
+library(arules)
+library(arulesViz)
+library(plyr)
+
+```
+
+Loading the dataset and checking the summary of the data.
+
+```{r}
+
+transaction_data = read.transactions(file = "groceries_v2.csv", format = "basket", sep = ",")
+
+```
+
+We are using the apriori algorithm having Support = 0.01 and Confidence = 0.5.
+
+```{r}
+
+Association_rules <- apriori(transaction_data, parameter = list(sup = 0.01, conf = 0.5, target="rules"))
+summary(Association_rules)
+
+```
+
+Since the algorithm have do not have sorted association rules, thus below we have sorted the rules based on confidence. 
+
+```{r}
+
+Association_rules_Sorted <- sort(Association_rules, by='confidence', decreasing = TRUE)
+summary(Association_rules_Sorted)
+
+```
+
+The Association rules with there supportand cofidence are as below.
+
+```{r}
+
+inspect(Association_rules_Sorted)
+
+```
